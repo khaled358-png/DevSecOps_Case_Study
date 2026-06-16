@@ -26,15 +26,18 @@ jobs:
       uses: actions/checkout@v4
 
 
+
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.12"
 
 
+
     - name: Install dependencies
       run: |
         pip install -r my-website/requirements.txt
+
 
 
     - name: Run Unit Tests
@@ -43,7 +46,28 @@ jobs:
         PYTHONPATH=. pytest tests
 
 
+
     - name: Build Docker Image
       if: success()
       run: |
         docker build -t devops-demo-app -f docker/Dockerfile .
+
+
+
+    - name: Run Docker Container
+      run: |
+        docker run -d -p 5000:5000 --name devops-container devops-demo-app
+
+
+
+    - name: Test Application URL
+      run: |
+        sleep 5
+        curl http://localhost:5000
+
+
+
+    - name: Stop Docker Container
+      if: always()
+      run: |
+        docker stop devops-container
